@@ -1,7 +1,7 @@
 ---
 title: "Biol 3872 Lab4-Assignment"
-author: ""
-student_id: ""
+author: "Jesse"
+student_id: "420"
 date: "`r Sys.Date()`"
 editor_options:
   chunk_output_type: inline
@@ -37,9 +37,13 @@ B) Now add a `geom` jitter layer to your plot showing how the data is distribute
 data("iris")
 #A)
 # YOUR CODE HERE
-
+iris_mean <- 
+ggplot(data = iris, aes(x = Species, y = Sepal.Length))+
+  stat_summary(fun = mean, geom="crossbar")
+  
 #B)
 # YOUR CODE HERE
+iris_data <- iris_mean + geom_jitter()
 ```
 :::
 
@@ -60,10 +64,39 @@ C)  Add to `fuel_efficiency_plot_b`, another column `geom` which is filled by ca
 data("mtcars")
 # A)
 # YOUR CODE HERE
+cars.mut <- #write all the following to a new variable
+mtcars %>% 
+    rownames_to_column(var = "cartype") %>% #make the rownames into a column so we can call it by name
+    mutate(cartype = factor(cartype))  #make the new column int a factor
+
+cars.mut$cartype <- fct_reorder(.f = cars.mut$cartype,
+                                .x = cars.mut$mpg,
+                                .desc = TRUE) #reorder the cartype factor by referencing the mpg column, in descending order
+
+#plot it
+fuel_efficiency_plot_a <-
+ggplot(cars.mut, aes(x = cartype, y = mpg))+
+  geom_col()
+
+fuel_efficiency_plot_a
+
 # B)
 # YOUR CODE HERE
+fuel_efficiency_plot_b <-
+  fuel_efficiency_plot_a +
+    theme_minimal(base_size = 12)+
+    theme(axis.text.x = element_text(angle=45, hjust=1))
+  
+fuel_efficiency_plot_b  
+  
 # C)
 # YOUR CODE HERE
+fuel_efficiency_plot_c <-
+  fuel_efficiency_plot_b +
+    geom_col(aes(fill = wt))+
+    scale_fill_continuous(palette = viridis(length(cars.mut$wt)))
+
+fuel_efficiency_plot_c
 ```
 :::
 
@@ -80,6 +113,28 @@ Patch this `cars_compared` plot with `fuel_efficiency_plot_c` as a single column
 ```{r}
 # A)
 # YOUR CODE HERE
+
+horsepower_plot <-
+  ggplot(data = cars.mut, aes(x = cartype, y = hp))+
+  geom_point(size = 3, shape = 21, aes(fill = wt))+ #only shapes 21-25 allow fill
+  #viridis palette, scaled to car weight
+  scale_fill_continuous(palette = viridis(length(cars.mut$wt)))+
+  #theme
+  theme_minimal(base_size = 12)+
+  #angle & justify x-axis labels so they fit
+  theme(axis.text.x = element_text(angle=45, hjust=1))
+
+horsepower_plot
+
+#combine the two plots using patchwork
+cars_compared <- 
+  fuel_efficiency_plot_c +
+  horsepower_plot +
+  #collect x axis label + scale and color legend since they're duplicates
+  plot_layout(ncol = 1, axis_titles = "collect_x", axes = 'collect_x',
+              guides = 'collect')
+
+cars_compared
 ```
 :::
 
@@ -97,8 +152,46 @@ B) Order the season variable as a factor (Levels = Winter, Spring, Summer, Autum
 # A)
 data("co2")
 # YOUR CODE HERE
+#create dataframe with columns for c02 level, yearn and month
+co2_df <- data.frame(
+  co2 = as.numeric(co2),
+  year = trunc(time(co2)),
+  month = month.abb[cycle(co2)]
+)
+
+#for/if/else statement which adds a season column to the dataframe, and fills it by
+#determining season based on month
+for (i in 1:nrow(co2_df)) {
+  if (co2_df$month[i] %in% c('Dec', 'Jan', 'Feb')){
+    co2_df$season[i] <- 'Winter'
+    }
+  else if (co2_df$month[i] %in% c('Mar', 'Apr', 'May')){
+    co2_df$season[i] <- 'Spring'
+    }
+  else if (co2_df$month[i] %in% c('Jun', 'Jul', 'Aug')){
+    co2_df$season[i] <- 'Summer'
+    }
+#Leaving this silly phrasing for future reference if I need to do something silly
+  else if (co2_df$month[i] == 'Sep' | co2_df$month[i] == 'Oct' | co2_df$month[i] == 'Nov') {
+    co2_df$season[i] <- 'Autumn'
+    }
+  else {
+    print('panic time something is wrong')
+    }
+}
+  
+
 # B)
 # YOUR CODE HERE
+#make season an ordered factor
+co2_df$season <- factor(co2_df$season, levels = c('Winter', 'Spring', 'Summer', 'Autumn', ordered = TRUE))
+
+#plot co2 by year, colored by season
+ggplot(co2_df, aes(x= year, y = co2, col = season))+
+  geom_point()+
+  geom_jitter()+
+  scale_colour_manual(values = c("#0072B2", "#009E73", "#CC79A7", "#E69F00"))
+
 ```
 :::
 
@@ -110,9 +203,23 @@ data("co2")
 
 A) Using the same `co2_df` as above, order the months by the calender order (not alphabetical) as shown in the exercise. Create a `ggplot` object named `ordered_co2_friendly` comparing yearly co2 concentrations (same as Task 4). Add a point `geom` and a minimal `theme` with 12 point font and a manual color-blind friendly palette `scale` using `diverge_hcl` from `colorspace`. Finally, `facet` this plot by season.
 
+
+
 ```{r}
 # A)
 # YOUR CODE HERE
+ordered_co2_friendly <-
+co2_df %>% 
+  mutate(month = factor(month, levels = month.abb)) %>%
+  ggplot(aes(x = year, y = co2, col = month))+
+  geom_point()+
+  geom_jitter()+
+  theme_minimal(base_size = 12)+
+  scale_colour_discrete(palette = diverging_hcl(12, palette = 'Blue-Red'))+
+  facet_wrap(vars(season))
+  
+  
+ordered_co2_friendly
 ```
 :::
 
