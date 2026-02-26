@@ -57,10 +57,10 @@ invisible(lapply(packages, library, character.only = TRUE))
 ```{r}
 # Example of IF statement where condition is TRUE
 
-x <- 1e6
+x <- 10
 
-if (x < 0) {
-  print("x is greater than or equal to 1e-6")
+if (x >= 0) {
+  print("x is greater than or equal to 0")
 }
 
 ```
@@ -117,6 +117,18 @@ Build a multi-chain `ifelse` statement based on the syntax above:
 ```{r}
 # YOUR CODE HERE
 
+x <- 0
+
+if (x < 0) {
+  print("x is negative")
+} else if (x >= 0 & x <= 10){
+  print('x is small')
+} else if (x == 69){
+  print('nice')
+} else {
+  print('x is large')
+}
+
 ```
 
 \
@@ -124,7 +136,7 @@ Build a multi-chain `ifelse` statement based on the syntax above:
 There are other types of conditional statements that are useful to keep in mind.
 
 ```{r}
-x <- 1e-20
+x <- '5'
 
 if (is.numeric(x)) {
   print("x is numeric")
@@ -174,7 +186,7 @@ knitr::include_graphics(path.expand("../Figures/Scotian_shelf.png"))
 ```{r}
 fish_abundance <- read.csv("../Data/Groundfish_surveys.csv")
 
-hist(fish_abundance$depth)
+hist(log(fish_abundance$num_cpue))
 
 fish_abundance %>% 
   mutate(year = sort(factor(year, levels = as.character(2016:2020)))) %>% 
@@ -283,11 +295,22 @@ groundfishes %>%
 
 ### Task 2
 
-Use the the ground fish survey data^1^ frame example from lab 2. Create a `for()` loop that sums the total abundance (`num_cpue`) for each fish species, for each year.
+Use the the ground fish survey data frame example from lab 2. Create a `for()` loop that sums the total abundance (`num_cpue`) for each fish species, for each year.
 
 ```{r}
 # YOUR CODE HERE
+species <- unique(fish_abundance$accepted_name)
+years <- unique (fish_abundance$year)
 
+data.frame()
+
+for (s in Species){
+  sub <- subset(fish_abundance, accepted_name)
+  for (y in years){
+    
+  }
+  
+}
 ```
 
 ### Vectorizing operations with \*apply
@@ -389,7 +412,9 @@ summarize_fish <- function(data,
     } else if (stat_type == "sum") {
       stat_value <- sum(sp_data, na.rm = TRUE)
     } else {
-      stat_value <- mean(sp_data, na.rm = TRUE) #Default if unrecognized stat type
+      stat_value <- mean(sp_data, na.rm = TRUE)
+      print('warning: unrecognized stat type - defaulted to mean')
+      #Default if unrecognized stat type
 
     }
     
@@ -418,6 +443,20 @@ Create a function called `classify_abundance` that takes a numeric vector of abu
 ```{r}
 
 #YOUR CODE HERE
+
+
+classify_abundance <- function(x){
+  for (i in 1:len(x)){
+    if (i == 0){
+      return('Absent')
+    } else if (i < 10){
+      return('Rare')
+    } else if (1 >= 10 & i <= 100)
+      return('Common')
+  } else {
+      return('Abundant')
+    }
+}
 
 ```
 
