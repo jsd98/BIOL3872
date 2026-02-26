@@ -71,7 +71,7 @@ Typically, there are:\
 
 ```{r}
 #NOTE that this is not a date
-d <- "2025-02-26"
+d <- "2026-02-26"
 
 # Encoding dates and times
 d <- as.Date(d)
@@ -145,11 +145,11 @@ A)  Modify the enclosed character strings to a proper (unambiguous) date or date
 ```{r}
 # YOUR CODE HERE
 
-"February-26-2026"
+as.Date("February-26-2026", format = '%B-%d-%Y') 
 
-"Jul/29/01"
+as.Date("Jul/29/01", format = '%b/%d/%y')
 
-"Dec-9-95"
+as.Date("Dec-9-95", format = '%b-%d-%y')
 
 "December/4/13 19:11:31"
 
@@ -247,7 +247,19 @@ D)  Create an object called `Bedford_Date` by combining the `year`, `month`, and
 
 ```{r}
 # YOUR CODE HERE
+#A
+Bedford_ts$Date <- ymd(Bedford_ts$Date) #convert date to appropriate format
 
+#B
+Bedford_ts$year <- year(Bedford_ts$Date) #extract year
+Bedford_ts$month <- month(Bedford_ts$Date) #extract month
+Bedford_ts$day <- day(Bedford_ts$Date) #extract day
+
+#C
+Bedford_ts$month_name <- month(Bedford_ts$Date, label = TRUE)
+
+#D
+Bedford_date <- as.Date(make_datetime(year = Bedford_ts$year, month = Bedford_ts$month, day = Bedford_ts$day))
 ```
 
 ### Visualizing dates and labels
@@ -255,15 +267,15 @@ D)  Create an object called `Bedford_Date` by combining the `year`, `month`, and
 ```{r}
 # Microbial richness
 r <- Bedford_ts %>% 
-  mutate(Month_name = factor(Month_name, levels = month.abb)) %>% 
-  ggplot(aes(x = Date, y = Richness, color = Month_name))+
+  mutate(month_name = factor(month_name, levels = month.abb)) %>% 
+  ggplot(aes(x = Date, y = Richness, color = month_name))+
   geom_point()+
   theme_minimal(12) +
   scale_x_date(date_minor_breaks = "2 month", date_labels = "%Y")
 
 #Temperature
 t <- Bedford_ts %>% 
-  mutate(Month_name = factor(Month_name, levels = month.abb)) %>% 
+  mutate(month_name = factor(month_name, levels = month.abb)) %>% 
   ggplot(aes(x = Date, y = Temperature, color = Temperature))+
   geom_point()+
   theme_minimal(12) +
@@ -272,7 +284,7 @@ t <- Bedford_ts %>%
 
 #Chl-A
 c <- Bedford_ts %>% 
-  mutate(Month_name = factor(Month_name, levels = month.abb)) %>% 
+  mutate(month_name = factor(month_name, levels = month.abb)) %>% 
   ggplot(aes(x = Date, y = Chlorophyll_log, color = Chlorophyll_log))+
   geom_point()+
   theme_minimal(12) +
@@ -413,10 +425,10 @@ Let's index for all samples in 2016.
 ```{r}
 str(Bedford_ts)
 
-x <- Bedford_ts[Bedford_ts$Year == 2016,]
+x <- Bedford_ts[Bedford_ts$year == 2016,]
 
 y <- Bedford_ts %>% 
-  filter(Year == 2016)
+  filter(year == 2016)
 
 z <- Bedford_ts %>% 
   filter(Date > as.Date("2015-12-31") & 
